@@ -1,191 +1,92 @@
+// Obtener elementos del DOM
 const title = document.getElementById("titulo");
-
 const searchInput = document.getElementById("searchInput");
-
 const cardsContainer = document.getElementById("productos");
 const carrito = document.getElementById("listaCarrito");
 const modalDetail = document.getElementById("modal-detail");
+const productCategorySelect = document.getElementById("productCategory");
+const saveProductButton = document.getElementById("saveProductButton");
+const productForm = document.getElementById("productForm");
+const sortButton = document.getElementById("sortButton");
 
 let webColor = "#c6c7ff";
 
-const products = [
-  {
-    name: "Mouse Inalámbrico",
-    description: "Mouse ergonómico inalámbrico con DPI ajustable.",
-    price: 29.99,
-    image:
-      "https://f.fcdn.app/imgs/3e4c97/www.zonatecno.com.uy/zoteuy/6f3c/original/catalogo/100041_100041_1/2000-2000/mouse-inalambrico-havit-hv-ms76gt-1600dpi-black-mouse-inalambrico-havit-hv-ms76gt-1600dpi-black.jpg",
-    category: "Accesorios",
-  },
-  {
-    name: "Teclado Mecánico",
-    description:
-      "Teclado mecánico retroiluminado RGB con interruptores Cherry MX.",
-    price: 89.99,
-    image:
-      "https://http2.mlstatic.com/D_NQ_NP_667185-MLU73412738232_122023-O.webp",
-    category: "Periféricos",
-  },
-  {
-    name: "Auriculares Gaming",
-    description:
-      "Auriculares gaming con sonido envolvente y micrófono con cancelación de ruido.",
-    price: 59.99,
-    image:
-      "https://f.fcdn.app/imgs/46c2e8/www.covercompany.com.uy/coveuy/c5b2/original/catalogo/2-4551_11535_1/2000-2000/auriculares-inalambricos-jbl-tune-770nc-c-cancelacion-de-ruido-black.jpg",
-    category: "Audio",
-  },
-  {
-    name: "Monitor de 27 pulgadas",
-    description: "Monitor 4K UHD con pantalla IPS y tasa de refresco de 144Hz.",
-    price: 329.99,
-    image:
-      "https://http2.mlstatic.com/D_NQ_NP_735145-MLA48131216536_112021-O.webp",
-    category: "Pantallas",
-  },
-  {
-    name: "Soporte para Laptop",
-    description:
-      "Soporte ajustable de aluminio para una configuración ergonómica.",
-    price: 39.99,
-    image:
-      "https://clever.uy/cdn/shop/products/D_797687-MLU48505835167_122021-O_600x600.jpg?v=1639603123",
-    category: "Accesorios",
-  },
-  {
-    name: "Hub USB-C",
-    description:
-      "Hub multi-puerto USB-C con HDMI, USB 3.0 y lector de tarjetas SD.",
-    price: 24.99,
-    image: "https://m.media-amazon.com/images/I/61S7Asj36AL._AC_SL1500_.jpg",
-    category: "Periféricos",
-  },
-  {
-    name: "SSD Externo",
-    description: "SSD externo portátil con 1TB de almacenamiento y USB 3.1.",
-    price: 129.99,
-    image:
-      "https://pronet.uy/wp-content/uploads/SSD-Externo-1TB-Kingston-XS1000-pronet.jpg",
-    category: "Almacenamiento",
-  },
-  {
-    name: "Soporte para Smartphone",
-    description:
-      "Soporte ajustable para smartphone con rotación de 360 grados.",
-    price: 19.99,
-    image:
-      "https://http2.mlstatic.com/D_NQ_NP_821020-MLU77736270331_072024-O.webp",
-    category: "Accesorios",
-  },
-  {
-    name: "Altavoz Bluetooth",
-    description: "Altavoz Bluetooth portátil con 10 horas de autonomía.",
-    price: 49.99,
-    image:
-      "https://circuit.com.uy/images/thumbs/0099742_parlante-bluetooth-doble-8-luces-40w-j2808_550.jpeg",
-    category: "Audio",
-  },
-  {
-    name: "Cámara Web",
-    description:
-      "Cámara web HD 1080p con micrófono incorporado y cubierta de privacidad.",
-    price: 34.99,
-    image:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQXs8o1qWTFTaGVERaMIo4FKP6CkbkYD7xv_g&s",
-    category: "Periféricos",
-  },
-  {
-    name: "Cargador Inalámbrico",
-    description: "Cargador inalámbrico rápido con compatibilidad Qi.",
-    price: 25.99,
-    image:
-      "https://f.fcdn.app/imgs/a2390c/zonalaptop.com.uy/zlapuy/39f2/original/catalogo/848061060119_848061060119_1/2000-2000/cargador-inalambrico-anker-powerwave-pad-cargador-inalambrico-anker-powerwave-pad.jpg",
-    category: "Accesorios",
-  },
-  {
-    name: "Auriculares con Cancelación de Ruido",
-    description:
-      "Auriculares con cancelación de ruido y conectividad Bluetooth.",
-    price: 199.99,
-    image: "https://m.media-amazon.com/images/I/51Ltm3tbH2L.jpg",
-    category: "Audio",
-  },
-  {
-    name: "Reloj Inteligente",
-    description: "Reloj inteligente con monitor de ritmo cardíaco y GPS.",
-    price: 149.99,
-    image:
-      "https://prod-resize.tiendainglesa.com.uy/images/medium/P571137-2.jpg?20240219094552,Smartwatch-S8-Negro-en-Tienda-Inglesa",
-    category: "Wearables",
-  },
-];
+// Variables globales
+let products = [];
+let carritoItems = [];
+let sortAscending = true;
+let editingProductId = null;
 
+// URL de la API del backend
+const apiUrl = 'http://localhost:3000/api/products'; // Asegúrate de que esta URL corresponda a tu backend
+
+// Cargar los productos al cargar la página
 window.onload = () => {
-  renderProducts(products);
+  fetchProducts();
+  attachEventListeners();
 };
 
-document.getElementById("searchButton").addEventListener("click", () => {
-  const text = searchInput.value.toLowerCase();
-  const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(text)
-  );
-  renderProducts(filteredProducts);
+// Función para obtener productos del backend
+function fetchProducts(params = {}) {
+  let url = apiUrl;
+  const queryParams = new URLSearchParams(params);
+  if (queryParams.toString()) {
+    url += `?${queryParams.toString()}`;
+  }
+  fetch(url)
+    .then(response => response.json())
+    .then(data => {
+      products = data;
+      renderProducts(products);
+    })
+    .catch(error => console.error('Error al obtener productos:', error));
+}
+
+// Funciones de búsqueda y filtrado
+document.getElementById("searchButton").addEventListener("click", filterAndRenderProducts);
+
+searchInput.addEventListener("input", filterAndRenderProducts);
+
+function filterAndRenderProducts() {
+  const text = searchInput.value.trim();
+  if (text) {
+    fetchProducts({ search: text });
+  } else {
+    fetchProducts();
+  }
+}
+
+// Función para alternar el ordenamiento
+sortButton.addEventListener("click", () => {
+  if (sortAscending) {
+    fetchProducts({ sort: 'price_asc' });
+    sortButton.textContent = "Ordenar por precio ↓";
+  } else {
+    fetchProducts({ sort: 'price_desc' });
+    sortButton.textContent = "Ordenar por precio ↑";
+  }
+  sortAscending = !sortAscending;
 });
 
-searchInput.addEventListener("input", (event) => {
-  const text = searchInput.value.toLowerCase();
-  const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(text)
-  );
-  renderProducts(filteredProducts);
-});
-
-document.querySelectorAll(".dropdown-item").forEach((item) => {
-  item.addEventListener("click", (event) => {
-    event.preventDefault();
-    const sortType = item.getAttribute("data-sort");
-    let sortedProducts = [...products];
-    if (sortType === "price-asc")
-      sortedProducts.sort((a, b) => a.price - b.price);
-    else if (sortType === "price-desc")
-      sortedProducts.sort((a, b) => b.price - a.price);
-    renderProducts(sortedProducts);
-  });
-});
-
+// Filtrar por categoría
 document.querySelectorAll(".item-categoria").forEach((item) => {
   item.addEventListener("click", (event) => {
     event.preventDefault();
     const category = item.getAttribute("data-sort");
-    const filteredProducts =
-      category === "Todas"
-        ? products
-        : products.filter((product) => product.category === category);
-    renderProducts(filteredProducts);
+    if (category === "Todas") {
+      fetchProducts();
+    } else {
+      fetchProducts({ category: category });
+    }
   });
 });
 
-function openDetailModal(product) {
-  product.stopPropagation();
-
-  modalDetail.classList.add("is-active");
-  const productDetail = products.find((p) => p.name === product.target.id);
-
-  modalDetail.querySelector(".modal-card-title").textContent =
-    productDetail.name;
-  document.getElementById("modal-image").src = productDetail.image;
-  document.getElementById("modal-description").textContent =
-    productDetail.description;
-  document.getElementById(
-    "modal-price"
-  ).textContent = `${productDetail.price} USD`;
-}
-
-function renderProducts(products) {
+// Función para renderizar los productos
+function renderProducts(productsList) {
   cardsContainer.innerHTML =
-    products.length === 0
+    productsList.length === 0
       ? `<div class="notification has-text-centered"><p class="title is-4">No se encontraron productos</p></div>`
-      : products.map((product) => renderCard(product)).join("");
+      : productsList.map((product) => renderCard(product)).join("");
   attachDragEvents();
 
   document.querySelectorAll(".product").forEach(($product) => {
@@ -193,12 +94,58 @@ function renderProducts(products) {
   });
 }
 
+// Función para renderizar una tarjeta de producto
+function renderCard(product) {
+  return `
+    <div class="cell product accent-shadow" draggable="true" ondragstart="drag(event)" id="${product._id}" data-product-id="${product._id}">
+      <div class="card">
+        <div class="card-image" style="height:200px; overflow:hidden;">
+          <figure class="image is-4by3">
+            <img src="${product.image}" alt="${product.name}" style="width:100%; height:100%; object-fit:cover;" />
+          </figure>
+        </div>
+        <div class="card-content">
+          <div class="media">
+            <div class="media-content">
+              <p class="title is-4">${product.name}</p>
+              <p class="subtitle is-4">$${product.price}</p>
+            </div>
+          </div>
+          <div class="content">${product.description}</div>
+        </div>
+        <footer class="card-footer">
+          <a href="#" class="card-footer-item" onclick="editProduct('${product._id}', event)">Editar</a>
+          <a href="#" class="card-footer-item" onclick="deleteProduct('${product._id}', event)">Eliminar</a>
+        </footer>
+      </div>
+    </div>`;
+}
+
+// Función para abrir el modal de detalle del producto
+function openDetailModal(event) {
+  event.stopPropagation();
+
+  modalDetail.classList.add("is-active");
+  const productDetail = products.find((p) => p._id === event.currentTarget.id);
+
+  modalDetail.querySelector(".modal-card-title").textContent = productDetail.name;
+  document.getElementById("modal-image").src = productDetail.image;
+  document.getElementById("modal-description").textContent = productDetail.description;
+  document.getElementById("modal-price").textContent = `$${productDetail.price} USD`;
+}
+
+// Función para manejar el arrastre (drag)
 function attachDragEvents() {
   document.querySelectorAll(".product").forEach((product) => {
     product.addEventListener("dragstart", drag);
   });
 }
 
+function drag(event) {
+  event.dataTransfer.setData("text/plain", event.currentTarget.id);
+}
+
+// Permitir soltar (drop) en el carrito
 function allowDrop(event) {
   event.preventDefault();
 }
@@ -206,6 +153,56 @@ function allowDrop(event) {
 document.getElementById("carrito").addEventListener("dragover", allowDrop);
 document.getElementById("carrito").addEventListener("drop", drop);
 
+// Función para manejar el drop en el carrito
+function drop(event) {
+  event.preventDefault();
+  const productId = event.dataTransfer.getData("text/plain");
+  const product = products.find((p) => p._id === productId);
+
+  if (product) {
+    const existingItem = carritoItems.find(item => item._id === productId);
+    if (existingItem) {
+      existingItem.quantity += 1;
+    } else {
+      carritoItems.push({ ...product, quantity: 1 });
+    }
+    renderCart();
+  }
+}
+
+// Función para renderizar el carrito
+function renderCart() {
+  carrito.innerHTML = '';
+
+  carritoItems.forEach((item) => {
+    const cartItem = `
+      <div class="box my-3 accent-color" data-product-id="${item._id}">
+        <div class="is-flex is-justify-content-space-between">
+          <div>
+            <b>${item.name}</b> - $${item.price}
+            <span class="quantity">${item.quantity}</span> unidad(es)
+          </div>
+          <div>
+            <button onclick="increaseQuantity('${item._id}', 1)">+</button>
+            <button onclick="increaseQuantity('${item._id}', -1)">-</button>
+          </div>
+        </div>
+      </div>
+    `;
+    carrito.innerHTML += cartItem;
+  });
+}
+
+// Función para incrementar o disminuir la cantidad de un producto en el carrito
+function increaseQuantity(productId, change) {
+  const item = carritoItems.find(item => item._id === productId);
+  if (item) {
+    item.quantity = Math.max(1, item.quantity + change);
+    renderCart();
+  }
+}
+
+// Lista de categorías
 const categorias = [
   "Accesorios",
   "Periféricos",
@@ -215,15 +212,17 @@ const categorias = [
   "Wearables",
 ];
 
-const productCategorySelect = document.getElementById("productCategory");
+// Poblar el select de categorías en el formulario de agregar producto
+if (productCategorySelect) {
+  categorias.forEach((categoria) => {
+    const option = document.createElement("option");
+    option.value = categoria;
+    option.textContent = categoria;
+    productCategorySelect.appendChild(option);
+  });
+}
 
-categorias.forEach((categoria) => {
-  const option = document.createElement("option");
-  option.value = categoria;
-  option.textContent = categoria;
-  productCategorySelect.appendChild(option);
-});
-
+// Manejo de modales
 document.addEventListener("DOMContentLoaded", () => {
   function openModal($el) {
     $el.classList.add("is-active");
@@ -263,173 +262,134 @@ document.addEventListener("DOMContentLoaded", () => {
       closeAllModals();
     }
   });
+});
 
-  const saveProductButton = document.getElementById("saveProductButton");
-  const productForm = document.getElementById("productForm");
+// Función para guardar un nuevo producto o actualizar uno existente
+saveProductButton.addEventListener("click", (event) => {
+  event.preventDefault(); // Prevenir el envío del formulario
 
-  saveProductButton.addEventListener("click", () => {
-    if (productForm.checkValidity()) {
-      const name = document.getElementById("productName").value;
-      const description = document.getElementById("productDescription").value;
-      const image = document.getElementById("productImage").value;
-      const price = parseFloat(document.getElementById("productPrice").value);
+  if (productForm.checkValidity()) {
+    const name = document.getElementById("productName").value;
+    const description = document.getElementById("productDescription").value;
+    const image = document.getElementById("productImage").value;
+    const price = parseFloat(document.getElementById("productPrice").value);
+    const category = document.getElementById("productCategory").value;
 
-      const newProduct = {
-        name,
-        description,
-        image,
-        price,
-        category: "Accessories",
-      };
+    const productData = {
+      name,
+      description,
+      image,
+      price,
+      category,
+    };
 
-      addProductToList(newProduct);
-      closeAllModals();
-      productForm.reset();
+    if (editingProductId) {
+      // Actualizar producto existente en el backend
+      fetch(`${apiUrl}/${editingProductId}`, {
+        method: 'PUT', // o 'PATCH' dependiendo de tu backend
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(productData)
+      })
+      .then(response => response.json())
+      .then(updatedProduct => {
+        // Refrescar la lista de productos
+        fetchProducts();
+        // Resetear el formulario y estado de edición
+        editingProductId = null;
+        saveProductButton.textContent = "Agregar Producto";
+        closeAllModals();
+        productForm.reset();
+      })
+      .catch(error => console.error('Error al actualizar el producto:', error));
     } else {
-      alert("Por favor, completa todos los campos.");
+      // Crear nuevo producto en el backend
+      fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(productData)
+      })
+      .then(response => response.json())
+      .then(newProduct => {
+        // Refrescar la lista de productos
+        fetchProducts();
+        // Resetear el formulario
+        closeAllModals();
+        productForm.reset();
+      })
+      .catch(error => console.error('Error al agregar el producto:', error));
     }
-  });
-
-  function addProductToList(product) {
-    products.push(product);
-    renderProducts(products);
+  } else {
+    alert("Por favor, completa todos los campos.");
   }
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-  renderProducts(products);
-  attachEventListeners();
-});
+// Función para editar un producto
+function editProduct(productId, event) {
+  event.preventDefault();
+  const product = products.find((p) => p._id === productId);
+  if (!product) return;
 
+  // Llenar el formulario con los datos del producto
+  document.getElementById("productName").value = product.name;
+  document.getElementById("productDescription").value = product.description;
+  document.getElementById("productImage").value = product.image;
+  document.getElementById("productPrice").value = product.price;
+  document.getElementById("productCategory").value = product.category;
+
+  // Cambiar el texto del botón para indicar edición
+  saveProductButton.textContent = "Actualizar Producto";
+
+  // Guardar el ID del producto que se está editando
+  editingProductId = productId;
+
+  // Abrir el modal
+  openModal(document.getElementById("productFormModal"));
+}
+
+// Función para eliminar un producto
+function deleteProduct(productId, event) {
+  event.preventDefault();
+  if (confirm(`¿Estás seguro de que deseas eliminar este producto?`)) {
+    fetch(`${apiUrl}/${productId}`, {
+      method: 'DELETE'
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Error al eliminar el producto');
+      }
+      return response.json();
+    })
+    .then(() => {
+      // Refrescar la lista de productos
+      fetchProducts();
+      // Eliminar el producto del carrito si está presente
+      carritoItems = carritoItems.filter(item => item._id !== productId);
+      renderCart();
+    })
+    .catch(error => console.error('Error al eliminar el producto:', error));
+  }
+}
+
+// Función para adjuntar los event listeners iniciales
 function attachEventListeners() {
-  document
-    .getElementById("searchButton")
-    .addEventListener("click", filterAndRenderProducts);
-  searchInput.addEventListener("input", filterAndRenderProducts);
-  document.getElementById("dropdown").addEventListener("click", toggleDropdown);
-  document.querySelectorAll(".dropdown-item").forEach((item) => {
-    item.addEventListener("click", sortProducts);
-  });
-  document
-    .getElementById("dropdown-categoria")
-    .addEventListener("click", toggleDropdown);
-  document.querySelectorAll(".item-categoria").forEach((item) => {
-    item.addEventListener("click", filterByCategory);
-  });
-  document.getElementById("carrito").addEventListener("dragover", allowDrop);
-  document.getElementById("carrito").addEventListener("drop", drop);
-  title.addEventListener("click", toggleConfetti);
+  // Los event listeners ya están adjuntados en el código
 }
 
-function toggleDropdown() {
-  this.classList.toggle("is-active");
-}
-
-
-function drag(event) {
-  event.dataTransfer.setData("text", event.target.dataset.productId);
-}
-
-function drop(event) {
-  event.preventDefault();
-  const productId = event.dataTransfer.getData("text");
-  const product = products.find((p) => p.name === productId);
-
-  if (product) {
-    const existingItem = carrito.querySelector(
-      `div[data-product-id="${productId}"]`
-    );
-    if (existingItem) {
-      const quantityElement = existingItem.querySelector(".quantity");
-      let quantity = parseInt(quantityElement.textContent);
-      quantityElement.textContent = quantity + 1;
-    } else {
-      addItemToCart(product);
-    }
-  }
-}
-
-function addItemToCart(product) {
-  const item = document.createElement("div");
-  item.setAttribute("data-product-id", product.name);
-  item.className = "box my-3 accent-color";
-  item.innerHTML = `
-    <div class="is-flex is-justify-content-space-between">
-      <div>
-        <b>${product.name}</b> - $${product.price}
-        <span class="quantity">0</span> unidad(es)
-      </div>
-      <div>
-        <button onclick="increaseQuantity('${product.name}', 1)">+</button>
-        <button onclick="increaseQuantity('${product.name}', -1)">-</button>
-      </div>
-    </div>
-  `;
-  carrito.appendChild(item);
-}
-
-function increaseQuantity(productId, change) {
-  const productElement = carrito.querySelector(
-    `div[data-product-id="${productId}"]`
-  );
-  const quantityElement = productElement.querySelector(".quantity");
-  let quantity = parseInt(quantityElement.textContent);
-  quantity = Math.max(1, quantity + change); // Asegura que la cantidad no sea menor que 1
-  quantityElement.textContent = quantity;
-}
-
-function sortProducts(event) {
-  event.preventDefault();
-  const sortType = this.getAttribute("data-sort");
-  let sortedProducts = [...products];
-  if (sortType === "price-asc") {
-    sortedProducts.sort((a, b) => a.price - b.price);
-  } else if (sortType === "price-desc") {
-    sortedProducts.sort((a, b) => b.price - a.price);
-  }
-  renderProducts(sortedProducts);
-}
-
-function filterByCategory(event) {
-  event.preventDefault();
-  const category = this.getAttribute("data-sort");
-  const filteredProducts =
-    category === "Todas"
-      ? products
-      : products.filter((product) => product.category === category);
-  renderProducts(filteredProducts);
-}
-
-function filterAndRenderProducts() {
-  const text = searchInput.value.toLowerCase();
-  const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(text)
-  );
-  renderProducts(filteredProducts);
-}
-
-function toggleConfetti(e) {
-  e.preventDefault();
-  const rect = title.getBoundingClientRect();
-  const x = (rect.left + rect.right) / 2 / window.innerWidth;
-  const y = (rect.top + rect.bottom) / 2 / window.innerHeight;
-  confetti({
-    particleCount: 20,
-    spread: 200,
-    origin: { x: x, y: y },
-  });
-  toggleAccentColor();
-}
-
-title.addEventListener("click", function () {
+// Funciones auxiliares
+function toggleAccentColor() {
   webColor = `hsl(${Math.random() * 360}, 100%, 80%)`;
   setAccentColors(webColor);
+  title.textContent = "Humildify " + getEmoji();
+}
 
+function getEmoji() {
   const emojis = ["🚀", "🌈", "🦄", "🌟", "🎉", "🎈", "🎊", "🔥", "💥", "🌲"];
-
-  const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
-  this.textContent = "Humildify " + randomEmoji;
-});
+  return emojis[Math.floor(Math.random() * emojis.length)];
+}
 
 function setAccentColors(color) {
   const elementsColor = Array.from(
@@ -465,35 +425,7 @@ function setAccentColors(color) {
   });
 }
 
-function renderCard(product) {
-  return `
-    <div class="cell product" draggable="true" id="${product.name}" data-product-id="${product.name}">
-      <div class="card accent-shadow">
-        <div class="card-image">
-          <figure class="image is-4by3">
-            <img src="${product.image}" class=""full-width alt="${product.name}" />
-          </figure>
-        </div>
-        <div class="card-content">
-          <div class="media">
-            <div class="media-content">
-              <p class="title is-4">${product.name}</p>
-              <p class="subtitle is-4">${product.price}</p>
-            </div>
-          </div>
-          <div class="content">${product.description}</div>
-        </div>
-      </div>
-    </div>`;
-}
-
-function toggleAccentColor() {
-  webColor = `hsl(${Math.random() * 360}, 100%, 80%)`;
-  setAccentColors(webColor);
-  title.textContent = "Humildify " + getEmoji();
-}
-
-function getEmoji() {
-  const emojis = ["🚀", "🌈", "🦄", "🌟", "🎉", "🎈", "🎊", "🔥", "💥", "🌲"];
-  return emojis[Math.floor(Math.random() * emojis.length)];
-}
+// Evento para cambiar el título y el color al hacer clic
+title.addEventListener("click", function () {
+  toggleAccentColor();
+});
